@@ -44,11 +44,36 @@ def knnTest(testFile, modelFile):
         predictOrient = max(knn, key=knn.get)
         accuracy += (1 if int(predictOrient) == int (testOrient) else 0)
         if predictOrient != testOrient:
-            print predictOrient
-            print testOrient
-            print knn
-            print "--------------------------------------------------------------------------------------------------------------" + str(n)
-    print "Accuracy: " + str(100.0 * accuracy / n)
+            #print predictOrient
+            #print testOrient
+            #print knn
+            #print "--------------------------------------------------------------------------------------------------------------" + str(n)
+    #print "Accuracy: " + str(100.0 * accuracy / n)
+#model file only weights
+
+
+
+def adaboostTrain(trainFile, modelFile):
+    vectorlist = []
+    orientlist = [] #membership function
+    wt = 1 #start with 1
+    wtlist = [] #weight list for corresponding vector
+    trainData = open(trainFile, "r")
+    modelAppend = open(modelFile, "w+")
+    for line in trainData:
+        row = line[:-1].split(' ', 2)
+        vectorlist.append(row[2:])
+        orientlist.append(row[1])
+        print vectorlist
+    for sth in range(0,len(vectorlist)-1):
+        wtlist.append(wt)
+    modelAppend.write(wtlist)
+    modelAppend.close()
+
+
+
+#def adaboostTest():
+
 
 switch = sys.argv[1]
 switchFile = sys.argv[2]
@@ -60,3 +85,8 @@ if model.lower() == "nearest":
         knnTrain(switchFile, modelFile)
     if switch.lower() == "test":
         knnTest(switchFile, modelFile)
+elif model.lower() == "adaboost":
+    if switch.lower() == "train":
+        adaboostTrain(switchFile, modelFile)
+    #if switch.lower() == "test":
+        #adaboostTest(switchFile, modelFile)

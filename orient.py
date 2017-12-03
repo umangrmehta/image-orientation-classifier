@@ -6,6 +6,26 @@ import operator
 from Queue import PriorityQueue
 import numpy as np
 
+def adaboostTrain(trainFile, modelFile):
+    vectorlist = []
+    orientlist = [] #membership function
+    wt = 1 #start with 1
+    wtlist = [] #weight list for corresponding vector
+    trainData = open(trainFile, "r")
+    modelAppend = open(modelFile, "w+")
+    for line in trainData:
+        row = line[:-1].split(' ', 2)
+        vectorlist.append(row[2:])
+        orientlist.append(row[1])
+        print vectorlist
+    for sth in range(0,len(vectorlist)-1):
+        wtlist.append(wt)
+    modelAppend.write(wtlist)
+    modelAppend.close()
+
+def adaboostTest(trainFile, modelFile):
+    pass
+
 def knnTrain(trainFile, modelFile):
     print "Learning Model.."
     trainData = open(trainFile, "r")
@@ -41,7 +61,6 @@ def knnTest(testFile, modelFile):
         knn = {0: 0, 90: 0, 180: 0, 270: 0}
         knnDist = {0: 0, 90: 0, 180: 0, 270: 0}
         n += 1
-        print "--------------------------------------------------------------------------------------------------------------" + str(n)
         testList = line.split(' ')
         testList = [int(i) for i in testList[1:]]
         testOrient = testList[0]
@@ -53,16 +72,17 @@ def knnTest(testFile, modelFile):
             eucDist = math.sqrt(np.sum(np.power((vector - testVector), 2)))
             distQueue.put((eucDist, orient))
         model.close()
-        k=35
+        k=47
         for i in range(0, k, 1):
             knnScore = distQueue.get()
             knn[knnScore[1]] += 1
             knnDist[knnScore[1]] += knnScore[0]
             predictOrient = max(knn, key=knn.get)
         accuracy += (1 if predictOrient == testOrient else 0)
-        print knn
-        print knnDist
         if predictOrient != testOrient:
+            print "--------------------------------------------------------------------------------------------------------------" + str(n)
+            print knn
+            print knnDist
             print predictOrient
             print testOrient
             pass
@@ -78,25 +98,9 @@ if model.lower() == "nearest":
         knnTrain(switchFile, modelFile)
     if switch.lower() == "test":
         knnTest(switchFile, modelFile)
-    elif model.lower() == "adaboost":
-        if switch.lower() == "train":
-            adaboostTrain(switchFile, modelFile)
-#if switch.lower() == "test":
-#adaboostTest(switchFile, modelFile)
+elif model.lower() == "adaboost":
+    if switch.lower() == "train":
+        adaboostTrain(switchFile, modelFile)
+    if switch.lower() == "test":
+        adaboostTest(switchFile, modelFile)
 
-# def adaboostTrain(trainFile, modelFile):
-#     vectorlist = []
-#     orientlist = [] #membership function
-#     wt = 1 #start with 1
-#     wtlist = [] #weight list for corresponding vector
-#     trainData = open(trainFile, "r")
-#     modelAppend = open(modelFile, "w+")
-#     for line in trainData:
-#         row = line[:-1].split(' ', 2)
-#         vectorlist.append(row[2:])
-#         orientlist.append(row[1])
-#         print vectorlist
-#     for sth in range(0,len(vectorlist)-1):
-#         wtlist.append(wt)
-#     modelAppend.write(wtlist)
-#     modelAppend.close()

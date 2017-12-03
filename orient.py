@@ -18,7 +18,6 @@ def knnTrain(trainFile, modelFile):
     print "Learning complete.."
 
 def knnTest(testFile, modelFile):
-    distQueue = PriorityQueue()
     lineNumber = 0
     testData = open(testFile, "r")
     num_lines = sum(1 for line in open(modelFile))
@@ -38,6 +37,7 @@ def knnTest(testFile, modelFile):
     n = 0
     accuracy = 0
     for line in testData:
+        distQueue = PriorityQueue()
         knn = {0: 0, 90: 0, 180: 0, 270: 0}
         knnDist = {0: 0, 90: 0, 180: 0, 270: 0}
         n += 1
@@ -50,21 +50,22 @@ def knnTest(testFile, modelFile):
         for row in range(0,len(trainOrient),1):
             vector = trainVector[row]
             orient = int(trainOrient[row])
-            eucDist = math.sqrt(sum(np.power((vector - testVector), 2)))
+            eucDist = math.sqrt(np.sum(np.power((vector - testVector), 2)))
             distQueue.put((eucDist, orient))
         model.close()
-        k=37
+        k=35
         for i in range(0, k, 1):
             knnScore = distQueue.get()
             knn[knnScore[1]] += 1
             knnDist[knnScore[1]] += knnScore[0]
             predictOrient = max(knn, key=knn.get)
-        accuracy += (1 if int(predictOrient) == int(testOrient) else 0)
-        # print knn
-        # print knnDist
-        # if predictOrient != testOrient:
-        #     print predictOrient
-        #     print testOrient
+        accuracy += (1 if predictOrient == testOrient else 0)
+        print knn
+        print knnDist
+        if predictOrient != testOrient:
+            print predictOrient
+            print testOrient
+            pass
     print "Accuracy: " + str(100.0 * accuracy / n)
 
 switch = sys.argv[1]

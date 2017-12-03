@@ -5,7 +5,6 @@ import math
 import operator
 from Queue import PriorityQueue
 
-p=2
 def knnTrain(trainFile, modelFile):
     trainData = open(trainFile, "r")
     modelAppend = open(modelFile, "w+")
@@ -32,15 +31,14 @@ def knnTest(testFile, modelFile):
             rowList = row.split('|')
             vector = rowList[1].split(' ')
             orient = rowList[0]
-            for i in range(0, 191, 1):
-                sumEucDist = sumEucDist + math.pow(abs(int(testVector[i]) - int(vector[i])), p)
-            eucDist = math.pow(sumEucDist,round(1/float(p),1))
+            for i in range(0, 192, 1):
+                sumEucDist = sumEucDist + math.pow(int(testVector[i]) - int(vector[i]), 2)
+            eucDist = math.sqrt(sumEucDist)
             distQueue.put((eucDist, orient))
-        k=47
+        k=35
         for i in range(0, k, 1):
             knnOrient = distQueue.get()
-            knn[knnOrient[1]] += 1/ math.pow(knnOrient[0], 2)
-        index, value = max(enumerate(knn), key=operator.itemgetter(1))
+            knn[knnOrient[1]] += 1
         predictOrient = max(knn, key=knn.get)
         accuracy += (1 if int(predictOrient) == int (testOrient) else 0)
         if predictOrient != testOrient:

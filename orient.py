@@ -41,7 +41,7 @@ def knnTest(testFile, modelFile):
         knn = {0: 0, 90: 0, 180: 0, 270: 0}
         knnDist = {0: 0, 90: 0, 180: 0, 270: 0}
         n += 1
-        #print "--------------------------------------------------------------------------------------------------------------" + str(n)
+        print "--------------------------------------------------------------------------------------------------------------" + str(n)
         testList = line.split(' ')
         testList = [int(i) for i in testList[1:]]
         testOrient = testList[0]
@@ -82,3 +82,20 @@ if model.lower() == "nearest":
             adaboostTrain(switchFile, modelFile)
 #if switch.lower() == "test":
 #adaboostTest(switchFile, modelFile)
+
+# def adaboostTrain(trainFile, modelFile):
+#     vectorlist = []
+#     orientlist = [] #membership function
+#     wt = 1 #start with 1
+#     wtlist = [] #weight list for corresponding vector
+#     trainData = open(trainFile, "r")
+#     modelAppend = open(modelFile, "w+")
+#     for line in trainData:
+#         row = line[:-1].split(' ', 2)
+#         vectorlist.append(row[2:])
+#         orientlist.append(row[1])
+#         print vectorlist
+#     for sth in range(0,len(vectorlist)-1):
+#         wtlist.append(wt)
+#     modelAppend.write(wtlist)
+#     modelAppend.close()

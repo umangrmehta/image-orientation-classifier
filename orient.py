@@ -11,15 +11,29 @@ def knnTrain(trainFile, modelFile):
     trainData = open(trainFile, "r")
     modelAppend = open(modelFile, "w")
     for line in trainData:
-        row = line[:-1].split(' ', 1)
-        modelAppend.write("%s\n" % row[1])
+        row = line[:-1].split(' ', 2)
+        modelAppend.write("%s|%s\n" % (row[1], row[2]))
     trainData.close()
     modelAppend.close()
     print "Learning complete.."
 
 def knnTest(testFile, modelFile):
     distQueue = PriorityQueue()
+    lineNumber = 0
     testData = open(testFile, "r")
+    num_lines = sum(1 for line in open(modelFile))
+    trainVector = np.zeros((num_lines+1, 192), dtype=np.int_)
+    trainOrient = np.zeros((num_lines+1, 1), dtype=np.int_)
+    model = open(modelFile, "r")
+    for row in model:
+        lineNumber += 1
+        rowList = row.split('|')
+        intmOrient = rowList[0]
+        intmVector = rowList[1].split(' ')
+        vector = [int(i) for i in intmVector]
+        trainOrient[lineNumber] = intmOrient
+        trainVector[lineNumber] = np.array(vector)
+    model.close()
     print "Begin test processing.."
     n = 0
     accuracy = 0
@@ -27,19 +41,17 @@ def knnTest(testFile, modelFile):
         knn = {0: 0, 90: 0, 180: 0, 270: 0}
         knnDist = {0: 0, 90: 0, 180: 0, 270: 0}
         n += 1
-        print "--------------------------------------------------------------------------------------------------------------" + str(n)
+        #print "--------------------------------------------------------------------------------------------------------------" + str(n)
         testList = line.split(' ')
         testList = [int(i) for i in testList[1:]]
         testOrient = testList[0]
         testVector = np.array(testList[1:])
         model = open(modelFile, "r")
-        for row in model:
-            vector = row.split(' ')
-            vector = [int(i) for i in vector]
-            trainVector = np.array(vector[1:])
-            trainOrient = int(vector[0])
-            eucDist = math.sqrt(sum(np.power((trainVector - testVector), 2)))
-            distQueue.put((eucDist, trainOrient))
+        for row in range(0,len(trainOrient),1):
+            vector = trainVector[row]
+            orient = int(trainOrient[row])
+            eucDist = math.sqrt(sum(np.power((vector - testVector), 2)))
+            distQueue.put((eucDist, orient))
         model.close()
         k=37
         for i in range(0, k, 1):
@@ -48,13 +60,12 @@ def knnTest(testFile, modelFile):
             knnDist[knnScore[1]] += knnScore[0]
             predictOrient = max(knn, key=knn.get)
         accuracy += (1 if int(predictOrient) == int(testOrient) else 0)
-        print knn
-        print knnDist
-        print "Accuracy: " + str(100.0 * accuracy / n)
-        if predictOrient != testOrient:
-            print predictOrient
-            print testOrient
-
+        # print knn
+        # print knnDist
+        # if predictOrient != testOrient:
+        #     print predictOrient
+        #     print testOrient
+    print "Accuracy: " + str(100.0 * accuracy / n)
 
 switch = sys.argv[1]
 switchFile = sys.argv[2]

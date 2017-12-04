@@ -24,7 +24,7 @@ def knnTest(testVector, trainOrient, trainVector):
         orient = int(trainOrient[row])
         eucDist = math.sqrt(np.sum(np.power((vector - testVector), 2)))
         distQueue.put((eucDist, orient))
-    k=47
+    k=7
     for i in range(0, k, 1):
         knnScore = distQueue.get()
         knn[knnScore[1]] += 1

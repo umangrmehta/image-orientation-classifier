@@ -15,7 +15,7 @@ def knnTrain(trainFile, modelFile):
     trainData.close()
     modelAppend.close()
 
-def knnTest(testVector, trainOrient, trainVector):
+def knnTest(testVector, trainOrient, trainVector, kValue):
     distQueue = PriorityQueue()
     knn = {0: 0, 90: 0, 180: 0, 270: 0}
     knnDist = {0: 0, 90: 0, 180: 0, 270: 0}
@@ -24,7 +24,7 @@ def knnTest(testVector, trainOrient, trainVector):
         orient = int(trainOrient[row])
         eucDist = math.sqrt(np.sum(np.power((vector - testVector), 2)))
         distQueue.put((eucDist, orient))
-    k=7
+    k=kValue
     for i in range(0, k, 1):
         knnScore = distQueue.get()
         knn[knnScore[1]] += 1

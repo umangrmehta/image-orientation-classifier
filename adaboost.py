@@ -14,9 +14,12 @@ def adaboostTrain(trainFile, modelFile):
     knnTrain(trainFile, modelFileKnn)
     model = open(modelFileKnn, "r")
     lineNumber = 0
+    kValue = 7
     numLinesTrain = sum(1 for line in open(modelFileKnn))
     trainVector = np.zeros((numLinesTrain, 192), dtype=np.int_)
     trainOrient = np.zeros((numLinesTrain, 1), dtype=np.int_)
+    testVector = np.zeros((numLinesTrain, 192), dtype=np.int_)
+    testOrient = np.zeros((numLinesTrain, 1), dtype=np.int_)
     for row in model:
         rowList = row.split('|')
         intmOrient = rowList[0]
@@ -30,16 +33,13 @@ def adaboostTrain(trainFile, modelFile):
     wtlist = np.full((numLinesTrain, 1),(1.0 / numLinesTrain), dtype=np.float_)
     trainData = open(trainFile, "r")
     lineNumber = 0
-    numLinesTrain = sum(1 for line in open(modelFileKnn))
-    trainVector = np.zeros((numLinesTrain, 192), dtype=np.int_)
-    trainOrient = np.zeros((numLinesTrain, 1), dtype=np.int_)
-    for row in model:
-        rowList = row.split('|')
-        intmOrient = rowList[0]
-        intmVector = rowList[1].split(' ')
+    for row in trainData:
+        rowList = row[:-1].split(' ', 2)
+        intmOrient = rowList[1]
+        intmVector = rowList[2].split(' ')
         vector = [int(i) for i in intmVector]
-        trainOrient[lineNumber] = intmOrient
-        trainVector[lineNumber] = np.array(vector)
+        testOrient[lineNumber] = intmOrient
+        testVector[lineNumber] = np.array(vector)
         lineNumber += 1
     trainData.close()
     for element in [0,90,180,270]:
@@ -47,16 +47,11 @@ def adaboostTrain(trainFile, modelFile):
         wnc = 0
         correctnesslist = np.zeros((numLinesTrain, 1), dtype=np.int_)
         lineNumber = 0
-        print element
-        for line in trainData:
+        for item in range(0,len(testOrient),1):
             print "--------------Line" +str(lineNumber)+ "-----------------"
-            row = line[:-1].split(' ', 2) #'train..', '0', '39 35....'
-            orientval = int (row[1])
-            vectorlist = row[2].split(' ')
-            vectorlist = [int(i) for i in vectorlist]
-            pred = knnTest(vectorlist, trainOrient, trainVector)
-            print pred
-            print orientval
+            vectorlist = testVector[item]
+            orientval = testOrient[item]
+            pred = knnTest(vectorlist, trainOrient, trainVector, kValue)
             if pred == element and orientval == element:
                 correctnesslist[lineNumber] = True
                 wc += 1
@@ -82,8 +77,7 @@ def adaboostTrain(trainFile, modelFile):
         print wc
         print alphalist
         trainData.close()
-
-    modelappend.write()
+    modelappend.write("Completed..")
 
     # for sth in range(0,len(vectorlist)-1):
     #     wtlist.append(wt)

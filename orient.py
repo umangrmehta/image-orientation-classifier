@@ -19,6 +19,7 @@ if model.lower() == "nearest":
         knnTrain(switchFile, modelFile)
     if switch.lower() == "test":
         accuracy = 0
+        kValue = 47
         numLinesTrain = sum(1 for line in open(modelFile))
         numLinesTest = sum(1 for line in open(switchFile))
         trainVector = np.zeros((numLinesTrain, 192), dtype=np.int_)
@@ -47,9 +48,9 @@ if model.lower() == "nearest":
         testData.close()
         for row in range(0, len(testOrient), 1):
             #print "-------------LINE " + str(row) + "-------------"
-            predictOrient = knnTest(testVector[row], trainOrient, trainVector)
+            predictOrient = knnTest(testVector[row], trainOrient, trainVector, kValue)
             accuracy += (1 if predictOrient == int(testOrient[row]) else 0)
-        print "Accuracy: " + str(100.0 * accuracy / row)
+        print "K-Nearest Neighbours Accuracy: " + str(100.0 * accuracy / row)
 
 elif model.lower() == "adaboost":
     if switch.lower() == "train":

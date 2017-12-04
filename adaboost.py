@@ -47,11 +47,14 @@ def adaboostTrain(trainFile, modelFile):
         wnc = 0
         correctnesslist = np.zeros((numLinesTrain, 1), dtype=np.int_)
         lineNumber = 0
+        print "*******************************" + str(element) + "*******************************"
         for item in range(0,len(testOrient),1):
             print "--------------Line" +str(lineNumber)+ "-----------------"
             vectorlist = testVector[item]
-            orientval = testOrient[item]
+            orientval = int(testOrient[item])
             pred = knnTest(vectorlist, trainOrient, trainVector, kValue)
+            print pred
+            print orientval
             if pred == element and orientval == element:
                 correctnesslist[lineNumber] = True
                 wc += 1

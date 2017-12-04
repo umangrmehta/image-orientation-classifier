@@ -9,13 +9,14 @@ from knn import *
 import numpy as np
 
 def adaboostTrain(trainFile, modelFile):
-    modelappend = open(modelFile, "w+")
-    modelFileKnn = modelFile+".ada"
-    knnTrain(trainFile, modelFileKnn)
-    model = open(modelFileKnn, "r")
-    lineNumber = 0
+    modelappend = open(modelFile, "w")
+    knnTrain(trainFile, modelFile+".ada")
+    model = open(modelFile+".ada", "r")
+    numLinesTrain = sum(1 for line in open(modelFile+".ada"))
+    alphalist = []
+    wtlist = np.full((numLinesTrain, 1),(1.0 / numLinesTrain), dtype=np.float_)
     kValue = 7
-    numLinesTrain = sum(1 for line in open(modelFileKnn))
+    lineNumber = 0
     trainVector = np.zeros((numLinesTrain, 192), dtype=np.int_)
     trainOrient = np.zeros((numLinesTrain, 1), dtype=np.int_)
     testVector = np.zeros((numLinesTrain, 192), dtype=np.int_)
@@ -29,8 +30,6 @@ def adaboostTrain(trainFile, modelFile):
         trainVector[lineNumber] = np.array(vector)
         lineNumber += 1
     model.close()
-    alphalist = []
-    wtlist = np.full((numLinesTrain, 1),(1.0 / numLinesTrain), dtype=np.float_)
     trainData = open(trainFile, "r")
     lineNumber = 0
     for row in trainData:
@@ -53,8 +52,8 @@ def adaboostTrain(trainFile, modelFile):
             vectorlist = testVector[item]
             orientval = int(testOrient[item])
             pred = knnTest(vectorlist, trainOrient, trainVector, kValue)
-            print pred
-            print orientval
+            #print pred
+            #print orientval
             if pred == element and orientval == element:
                 correctnesslist[lineNumber] = True
                 wc += 1
@@ -64,7 +63,7 @@ def adaboostTrain(trainFile, modelFile):
             else:
                 correctnesslist[lineNumber] = False
                 wnc += 1
-            print correctnesslist[lineNumber]
+            #print correctnesslist[lineNumber]
             lineNumber+=1
         alpha = (wc+1)/float(wnc+1)
         alphalist.append(alpha)
@@ -77,12 +76,14 @@ def adaboostTrain(trainFile, modelFile):
         wtlist /= z_t
         e_t = wc/float(wc+wnc)*100
         print e_t
-        print wc
-        print alphalist
-        trainData.close()
-    modelappend.write("Completed..")
+    modelappend.write("%s\n" % (' '.join(str(item) for item in alphalist)))
+    modelappend.close()
+    modelappend = open(modelFile, "a")
+    for item in range(0, len(testOrient), 1):
+        modelappend.write("%s %s\n" % (' '.join(str(item) for item in testOrient[item]), ' '.join(str(item) for item in testVector[item])))
+    modelappend.close()
 
-    # for sth in range(0,len(vectorlist)-1):
+        # for sth in range(0,len(vectorlist)-1):
     #     wtlist.append(wt)
     # modelAppend.write(wtlist)
     # modelAppend.close()

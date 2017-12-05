@@ -8,6 +8,7 @@ import numpy as np
 
 from adaboost import *
 from knn import *
+import nnet
 
 switch = sys.argv[1]
 switchFile = sys.argv[2]
@@ -58,3 +59,8 @@ elif model.lower() == "adaboost":
     if switch.lower() == "test":
         adaboostTest(switchFile, modelFile)
 
+elif model.lower() == "nnet":
+    if switch.lower() == "train":
+        nnet.train(switchFile, modelFile)
+    if switch.lower() == "test":
+        nnet.test(switchFile, modelFile)

@@ -28,6 +28,7 @@ def train(trainFile, modelFile):
 	hiddenToOP = np.random.rand(20, 4)
 
 	for i in range(0, 1000):
+		print i
 		vectorCheck = np.zeros(trainDataLength, dtype=np.bool_)
 		while not np.all(vectorCheck):
 			vectorIDX = random.randint(0, trainDataLength - 1)

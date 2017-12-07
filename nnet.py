@@ -36,18 +36,18 @@ def train(trainFile, modelFile):
 				continue
 			ipVector = trainIPVectors[vectorIDX]
 			# Feed Forward
-			hidden = np.matmul(ipVector, ipToHidden)
+			hidden = np.dot(ipVector, ipToHidden)
 			hiddenOP = sigmoid(hidden)
 
-			op = np.matmul(hiddenOP, hiddenToOP)
+			op = np.dot(hiddenOP, hiddenToOP)
 			finalOP = sigmoid(op)
 
 			# Back-Propagation
 			opError = sigmoid(np.asarray(op), derivative=True) * np.asarray(trainOPVectors[vectorIDX] - finalOP)
-			hiddenError = sigmoid(np.asarray(hidden), derivative=True) * np.asarray(np.matmul(opError, hiddenToOP.transpose()))
+			hiddenError = sigmoid(np.asarray(hidden), derivative=True) * np.asarray(np.dot(opError, hiddenToOP.transpose()))
 
-			hiddenToOP = hiddenToOP + np.multiply(0.1, np.matmul(np.asmatrix(hiddenOP).transpose(), np.asmatrix(opError)))
-			ipToHidden = ipToHidden + np.multiply(0.1, np.matmul(np.asmatrix(ipVector).transpose(), np.asmatrix(hiddenError)))
+			hiddenToOP = hiddenToOP + np.multiply(0.1, np.dot(np.asmatrix(hiddenOP).transpose(), np.asmatrix(opError)))
+			ipToHidden = ipToHidden + np.multiply(0.1, np.dot(np.asmatrix(ipVector).transpose(), np.asmatrix(hiddenError)))
 
 			vectorCheck[vectorIDX] = True
 
@@ -56,4 +56,26 @@ def train(trainFile, modelFile):
 
 
 def test(testFile, modelFile):
+	ipToHidden = np.random.rand(192, 20)
+	hiddenToOP = np.random.rand(20, 4)
+
+	numLinesTest = sum(1 for line in open(testFile))
+	testVectors = np.zeros((numLinesTest, 192), dtype=np.int_)
+	testOrients = np.zeros(numLinesTest, dtype=np.int_)
+	lineNumber = 0
+	for line in open(testFile, "r"):
+		testList = line.split(' ')
+		testList = [int(i) for i in testList[1:]]
+		testOrients[lineNumber] = testList[0]
+		testVectors[lineNumber] = np.array(testList[1:])
+		lineNumber += 1
+
+	for ipVector in testVectors:
+		print ipVector
+		# Feed Forward
+		hidden = np.matmul(ipVector, ipToHidden)
+		hiddenOP = sigmoid(hidden)
+
+		op = np.matmul(hiddenOP, hiddenToOP)
+		finalOP = sigmoid(op)
 	pass

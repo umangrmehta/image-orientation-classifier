@@ -67,7 +67,7 @@ def adaboostTrain(trainFile, modelFile):
             alpha = (0.5) * math.log((pred.count(1) + 1) / float(pred.count(0) + 1))
             modelAppend.write("%s %s %s\n" % (str(element), ' '.join(str(i) for i in featUdrCns), str(alpha)))
             for el in range(len(wtList)):
-                wtList[el] = math.exp(-1 * alpha) if pred[el] == 1 else math.exp(alpha)
+                wtList[el] = math.exp(-alpha) if pred[el] == 1 else math.exp(alpha)
             wtList /= np.sum(wtList)
             error = (pred.count(1) / float(pred.count(1) + pred.count(0))) * 100
             #print error
@@ -82,6 +82,7 @@ def adaboostTrain(trainFile, modelFile):
 
 def adaboostTest(testFile, modelFile):
     test = open(testFile, "r")
+    output = open("output.txt", "r")
     model = open(modelFile, "r")
     accuracy = 0
     numLinesTest = sum(1 for line in open(testFile))
@@ -113,7 +114,7 @@ def adaboostTest(testFile, modelFile):
             else:
                 pred[int(rowM)] -= float(dsAphMdl[lineNumberM])
         predOnt = max(pred.iteritems(), key=operator.itemgetter(1))[0]
-        print dsFleTst[lineNumberT] + " " + str(predOnt)
+        output.write("%s %s\n" % (dsFleTst[lineNumberT], str(predOnt)))
         if predOnt == dsOntTst[lineNumberT]:
             accuracy += 1
     print "Adaboost Accuracy: " + str((accuracy/float(numLinesTest))*100)

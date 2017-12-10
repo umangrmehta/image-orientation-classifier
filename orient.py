@@ -36,6 +36,7 @@ switch = sys.argv[1]
 switchFile = sys.argv[2]
 modelFile = sys.argv[3]
 model = sys.argv[4]
+output = open("output.txt", "r")
 
 if model.lower() == "nearest":
     if switch.lower() == "train":
@@ -55,7 +56,7 @@ if model.lower() == "nearest":
             knnDist = {0: 0, 90: 0, 180: 0, 270: 0}
             # print "-------------LINE " + str(row) + "-------------"
             predictOrient = knnTest(testVector[row], trainOrient, trainVector, 45, knn, knnDist)
-            print str(testFile[row]) + " " + str(predictOrient)
+            output.write("%s %s\n" % (str(testFile[row]), str(predictOrient)))
             accuracy += (1 if predictOrient == int(testOrient[row]) else 0)
         print "K-Nearest Neighbours Accuracy: " + str(100.0 * accuracy / row)
 elif model.lower() == "adaboost":
@@ -63,3 +64,5 @@ elif model.lower() == "adaboost":
         adaboostTrain(switchFile, modelFile)
     if switch.lower() == "test":
         adaboostTest(switchFile, modelFile)
+
+output.close()

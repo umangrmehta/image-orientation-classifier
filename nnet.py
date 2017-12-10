@@ -29,6 +29,8 @@ def train(trainFile, modelFile):
 
 	ipToHidden = np.random.uniform(-1, 1, size=(192, 20))
 	hiddenToOP = np.random.uniform(-1, 1, size=(20, 4))
+	hiddenBias = np.random.uniform(-1, 1, size=20)
+	opBias = np.random.uniform(-1, 1, size=4)
 
 	for i in range(epoch):
 		vectorCheck = np.zeros(trainDataLength, dtype=np.bool_)
@@ -40,10 +42,10 @@ def train(trainFile, modelFile):
 			ipVector = trainIPVectors[vectorIDX]
 			# Feed Forward
 			hidden = np.dot(ipVector, ipToHidden)
-			hiddenOP = sigmoid(hidden)
+			hiddenOP = sigmoid(hidden + hiddenBias)
 
 			op = np.dot(hiddenOP, hiddenToOP)
-			finalOP = sigmoid(op)
+			finalOP = sigmoid(op + opBias)
 
 			# Back-Propagation
 			opGradient = sigmoid(np.asarray(finalOP), derivative=True)
@@ -52,7 +54,9 @@ def train(trainFile, modelFile):
 			hiddenError = hiddenGradient * np.asarray(np.dot(opError, hiddenToOP.transpose()))
 
 			hiddenToOP = hiddenToOP + alpha * np.dot(np.asmatrix(hiddenOP).transpose(), np.asmatrix(opError))
+			opBias = opBias + alpha * opGradient
 			ipToHidden = ipToHidden + alpha * np.dot(np.asmatrix(ipVector).transpose(), np.asmatrix(hiddenError))
+			hiddenBias = hiddenBias + alpha * hiddenGradient
 
 			vectorCheck[vectorIDX] = True
 			epochError += np.sum(np.square(trainOPVectors[vectorIDX] - finalOP))*0.5

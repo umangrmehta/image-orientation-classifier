@@ -6,6 +6,7 @@ import winsound
 
 opPositionVector = ['0', '90', '180', '270']
 alpha = 0.0001
+epoch = 1000
 
 
 def sigmoid(x, derivative=False):
@@ -29,9 +30,7 @@ def train(trainFile, modelFile):
 	ipToHidden = np.random.uniform(-1, 1, size=(192, 20))
 	hiddenToOP = np.random.uniform(-1, 1, size=(20, 4))
 
-	for i in range(0, 1000):
-		if(i%10==0):
-			print i
+	for i in range(epoch):
 		vectorCheck = np.zeros(trainDataLength, dtype=np.bool_)
 		epochError = 0.0
 		while not np.all(vectorCheck):
@@ -47,9 +46,10 @@ def train(trainFile, modelFile):
 			finalOP = sigmoid(op)
 
 			# Back-Propagation
-
-			opError = sigmoid(np.asarray(finalOP), derivative=True) * np.asarray(trainOPVectors[vectorIDX] - finalOP)
-			hiddenError = sigmoid(np.asarray(hiddenOP), derivative=True) * np.asarray(np.dot(opError, hiddenToOP.transpose()))
+			opGradient = sigmoid(np.asarray(finalOP), derivative=True)
+			opError = opGradient * np.asarray(trainOPVectors[vectorIDX] - finalOP)
+			hiddenGradient = sigmoid(np.asarray(hiddenOP), derivative=True)
+			hiddenError = hiddenGradient * np.asarray(np.dot(opError, hiddenToOP.transpose()))
 
 			hiddenToOP = hiddenToOP + alpha * np.dot(np.asmatrix(hiddenOP).transpose(), np.asmatrix(opError))
 			ipToHidden = ipToHidden + alpha * np.dot(np.asmatrix(ipVector).transpose(), np.asmatrix(hiddenError))
@@ -57,10 +57,12 @@ def train(trainFile, modelFile):
 			vectorCheck[vectorIDX] = True
 			epochError += np.sum(np.square(trainOPVectors[vectorIDX] - finalOP))*0.5
 
-		if i % 10 == 0 and i >= 600:
-			print " Error= ", epochError
+		if i % 10 == 0:
+			print "Epoch = ", i
+			print "Epoch Error = ", epochError
 			np.savez_compressed(modelFile, ipToHidden=ipToHidden, hiddenToOP=hiddenToOP)
 			test("test-data.txt",  modelFile + ".npz")
+			print "-------------------------------------------------------------------------------------------------"
 	print ipToHidden
 	print hiddenToOP
 	np.savez_compressed(modelFile, ipToHidden=ipToHidden, hiddenToOP=hiddenToOP)
@@ -72,8 +74,6 @@ def test(testFile, modelFile):
 	modelData = np.load(modelFile)
 	ipToHidden = modelData['ipToHidden']
 	hiddenToOP = modelData['hiddenToOP']
-	print ipToHidden
-	print hiddenToOP
 
 	numLinesTest = sum(1 for line in open(testFile))
 	testVectors = np.zeros((numLinesTest, 192), dtype=np.int_)

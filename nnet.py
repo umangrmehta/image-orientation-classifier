@@ -4,6 +4,7 @@ import random
 import numpy as np
 
 opPositionVector = ['0', '90', '180', '270']
+hiddenNeurons = 20
 alpha = 0.0001
 epoch = 1000
 
@@ -26,8 +27,8 @@ def train(trainFile, modelFile):
 		trainIPVectors[lineNo] = np.array(row[2].split(' '))
 		trainOPVectors[lineNo, opPositionVector.index(row[1])] = 1
 
-	ipToHidden = np.random.uniform(-1, 1, size=(192, 20))
-	hiddenToOP = np.random.uniform(-1, 1, size=(20, 4))
+	ipToHidden = np.random.uniform(-1, 1, size=(192, hiddenNeurons))
+	hiddenToOP = np.random.uniform(-1, 1, size=(hiddenNeurons, 4))
 
 	for i in range(epoch):
 		vectorCheck = np.zeros(trainDataLength, dtype=np.bool_)

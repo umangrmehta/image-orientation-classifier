@@ -27,6 +27,7 @@ def train(trainFile, modelFile):
 		trainIPVectors[lineNo] = np.array(row[2].split(' '))
 		trainOPVectors[lineNo, opPositionVector.index(row[1])] = 1
 
+	np.random.seed(1)
 	ipToHidden = np.random.uniform(-1, 1, size=(192, hiddenNeurons))
 	hiddenToOP = np.random.uniform(-1, 1, size=(hiddenNeurons, 4))
 
@@ -61,7 +62,7 @@ def train(trainFile, modelFile):
 			print "Epoch = ", i
 			print "Epoch Error = ", epochError
 			np.savez_compressed(modelFile, ipToHidden=ipToHidden, hiddenToOP=hiddenToOP)
-			test("test-data.txt",  modelFile + ".npz")
+			test("test-data.txt",  modelFile)
 			print "-------------------------------------------------------------------------------------------------"
 	print ipToHidden
 	print hiddenToOP

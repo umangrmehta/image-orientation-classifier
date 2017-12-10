@@ -2,8 +2,10 @@
 
 import random
 import numpy as np
+import winsound
 
 opPositionVector = ['0', '90', '180', '270']
+alpha = 0.0001
 
 
 def sigmoid(x, derivative=False):
@@ -12,7 +14,7 @@ def sigmoid(x, derivative=False):
 
 def train(trainFile, modelFile):
 	trainData = open(trainFile, "r")
-	modelAppend = open(modelFile, "w")
+	# modelAppend = open(modelFile, "w")
 
 	trainDataLength = sum(1 for l in trainData)
 	trainData = open(trainFile, "r")
@@ -24,12 +26,14 @@ def train(trainFile, modelFile):
 		trainIPVectors[lineNo] = np.array(row[2].split(' '))
 		trainOPVectors[lineNo, opPositionVector.index(row[1])] = 1
 
-	ipToHidden = np.random.rand(192, 20)
-	hiddenToOP = np.random.rand(20, 4)
+	ipToHidden = np.random.uniform(-1, 1, size=(192, 20))
+	hiddenToOP = np.random.uniform(-1, 1, size=(20, 4))
 
 	for i in range(0, 1000):
-		print i
+		if(i%10==0):
+			print i
 		vectorCheck = np.zeros(trainDataLength, dtype=np.bool_)
+		epochError = 0.0
 		while not np.all(vectorCheck):
 			vectorIDX = random.randint(0, trainDataLength - 1)
 			if vectorCheck[vectorIDX]:
@@ -43,21 +47,33 @@ def train(trainFile, modelFile):
 			finalOP = sigmoid(op)
 
 			# Back-Propagation
-			opError = sigmoid(np.asarray(op), derivative=True) * np.asarray(trainOPVectors[vectorIDX] - finalOP)
-			hiddenError = sigmoid(np.asarray(hidden), derivative=True) * np.asarray(np.dot(opError, hiddenToOP.transpose()))
 
-			hiddenToOP = hiddenToOP + np.multiply(0.1, np.dot(np.asmatrix(hiddenOP).transpose(), np.asmatrix(opError)))
-			ipToHidden = ipToHidden + np.multiply(0.1, np.dot(np.asmatrix(ipVector).transpose(), np.asmatrix(hiddenError)))
+			opError = sigmoid(np.asarray(finalOP), derivative=True) * np.asarray(trainOPVectors[vectorIDX] - finalOP)
+			hiddenError = sigmoid(np.asarray(hiddenOP), derivative=True) * np.asarray(np.dot(opError, hiddenToOP.transpose()))
+
+			hiddenToOP = hiddenToOP + alpha * np.dot(np.asmatrix(hiddenOP).transpose(), np.asmatrix(opError))
+			ipToHidden = ipToHidden + alpha * np.dot(np.asmatrix(ipVector).transpose(), np.asmatrix(hiddenError))
 
 			vectorCheck[vectorIDX] = True
+			epochError += np.sum(np.square(trainOPVectors[vectorIDX] - finalOP))*0.5
 
-	print np.asmatrix(ipToHidden)
-	print np.asmatrix(hiddenToOP)
+		if i % 10 == 0 and i >= 600:
+			print " Error= ", epochError
+			np.savez_compressed(modelFile, ipToHidden=ipToHidden, hiddenToOP=hiddenToOP)
+			test("test-data.txt",  modelFile + ".npz")
+	print ipToHidden
+	print hiddenToOP
+	np.savez_compressed(modelFile, ipToHidden=ipToHidden, hiddenToOP=hiddenToOP)
+
+	winsound.Beep(740, 2000)
 
 
 def test(testFile, modelFile):
-	ipToHidden = np.random.rand(192, 20)
-	hiddenToOP = np.random.rand(20, 4)
+	modelData = np.load(modelFile)
+	ipToHidden = modelData['ipToHidden']
+	hiddenToOP = modelData['hiddenToOP']
+	print ipToHidden
+	print hiddenToOP
 
 	numLinesTest = sum(1 for line in open(testFile))
 	testVectors = np.zeros((numLinesTest, 192), dtype=np.int_)
@@ -70,12 +86,20 @@ def test(testFile, modelFile):
 		testVectors[lineNumber] = np.array(testList[1:])
 		lineNumber += 1
 
-	for ipVector in testVectors:
-		print ipVector
+	correctCount = 0
+	for idx, ipVector in enumerate(testVectors):
 		# Feed Forward
-		hidden = np.matmul(ipVector, ipToHidden)
+		hidden = np.dot(ipVector, ipToHidden)
 		hiddenOP = sigmoid(hidden)
 
-		op = np.matmul(hiddenOP, hiddenToOP)
+		op = np.dot(hiddenOP, hiddenToOP)
 		finalOP = sigmoid(op)
-	pass
+		# print op, finalOP
+		predictedOrient = opPositionVector[np.argmax(finalOP)]
+		# print predictedOrient
+		# print testOrients[idx]
+		# print "-------------------------------------------------------------------------------------------------------"
+		if int(predictedOrient) == testOrients[idx]:
+			correctCount += 1
+	print "Correctness: ", correctCount
+	print "Accuracy: ", str(correctCount * 100.0 / numLinesTest)

@@ -63,18 +63,20 @@ def train(trainFile, modelFile):
 		if i % 10 == 0:
 			print "Epoch = ", i
 			print "Epoch Error = ", epochError
-			np.savez_compressed(modelFile, ipToHidden=ipToHidden, hiddenToOP=hiddenToOP)
+			np.savez_compressed(modelFile, ipToHidden=ipToHidden, hiddenToOP=hiddenToOP, hiddenBias=hiddenBias, opBias=opBias)
 			test("test-data.txt",  modelFile + ".npz")
 			print "-------------------------------------------------------------------------------------------------"
 	print ipToHidden
 	print hiddenToOP
-	np.savez_compressed(modelFile, ipToHidden=ipToHidden, hiddenToOP=hiddenToOP)
+	np.savez_compressed(modelFile, ipToHidden=ipToHidden, hiddenToOP=hiddenToOP, hiddenBias=hiddenBias, opBias=opBias)
 
 
 def test(testFile, modelFile):
 	modelData = np.load(modelFile)
 	ipToHidden = modelData['ipToHidden']
 	hiddenToOP = modelData['hiddenToOP']
+	hiddenBias = modelData['hiddenBias']
+	opBias = modelData['opBias']
 
 	numLinesTest = sum(1 for line in open(testFile))
 	testVectors = np.zeros((numLinesTest, 192), dtype=np.int_)
@@ -91,10 +93,10 @@ def test(testFile, modelFile):
 	for idx, ipVector in enumerate(testVectors):
 		# Feed Forward
 		hidden = np.dot(ipVector, ipToHidden)
-		hiddenOP = sigmoid(hidden)
+		hiddenOP = sigmoid(hidden + hiddenBias)
 
 		op = np.dot(hiddenOP, hiddenToOP)
-		finalOP = sigmoid(op)
+		finalOP = sigmoid(op + opBias)
 		# print op, finalOP
 		predictedOrient = opPositionVector[np.argmax(finalOP)]
 		# print predictedOrient

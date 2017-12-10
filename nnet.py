@@ -2,7 +2,6 @@
 
 import random
 import numpy as np
-import winsound
 
 opPositionVector = ['0', '90', '180', '270']
 alpha = 0.0001
@@ -70,8 +69,6 @@ def train(trainFile, modelFile):
 	print ipToHidden
 	print hiddenToOP
 	np.savez_compressed(modelFile, ipToHidden=ipToHidden, hiddenToOP=hiddenToOP)
-
-	winsound.Beep(740, 2000)
 
 
 def test(testFile, modelFile):

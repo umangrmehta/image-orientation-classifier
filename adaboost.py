@@ -29,18 +29,15 @@ def buildTrain(orientation, trainWtList):
     global numLinesTrain
     global dsVector
     global dsOrient
-    rdmRowIdx = np.random.choice([i for i in range(numLinesTrain)], (numLinesTrain*60/100), replace=False, p=trainWtList.ravel())
+    rdmRowIdx = np.random.choice([i for i in range(numLinesTrain)], (numLinesTrain*75/100), replace=False, p=trainWtList.ravel())
     rdmRowIdx.sort()
     trainVector = np.zeros((len(rdmRowIdx), len(featUdrCns)), dtype=np.int_)
     trainOrient = np.zeros((len(rdmRowIdx), 1), dtype=np.int_)
     wtList = np.zeros((len(rdmRowIdx), 1), dtype=np.float_)
-    ridx = 0
-    for row in range(numLinesTrain):
-        if row in rdmRowIdx:
-            trainOrient[ridx] = 1 if dsOrient[row] == orientation else 0
-            trainVector[ridx] = [dsVector[row][col] for col in featUdrCns]
-            wtList[ridx] = trainWtList[row]
-            ridx += 1
+    for linenumber, row in enumerate(rdmRowIdx):
+        trainOrient[linenumber] = 1 if dsOrient[row] == orientation else 0
+        trainVector[linenumber] = [dsVector[row][col] for col in featUdrCns]
+        wtList[linenumber] = trainWtList[row]
 
 def decisionStump(vectorList):
     return 1 if vectorList[0] > vectorList[1] else 0
@@ -56,33 +53,23 @@ def adaboostTrain(trainFile, modelFile):
     buildDS(trainFile)
     for element in [0, 90, 180, 270]:
         for classifier in range(400):
-            pred = []
             featUdrCns = random.sample(xrange(192), 2)
             featUdrCns.sort()
             buildTrain(element, trainWtList)
-            for item in range(len(trainOrient)):
-                vectorList = trainVector[item]
-                orientVal = int(trainOrient[item])
-                pred.append(1 if orientVal == (decisionStump(vectorList)) else 0)
+            pred = [1 if int(trainOrient[item]) == (decisionStump(trainVector[item])) else 0 for item in range(len(trainOrient))]
             alpha = (0.5) * math.log((pred.count(1) + 1) / float(pred.count(0) + 1))
             modelAppend.write("%s %s %s\n" % (str(element), ' '.join(str(i) for i in featUdrCns), str(alpha)))
-            for el in range(len(wtList)):
-                wtList[el] = math.exp(-alpha) if pred[el] == 1 else math.exp(alpha)
+            wtList = [math.exp(-alpha) if pred[el] == 1 else math.exp(alpha) for el in range(len(wtList))]
             wtList /= np.sum(wtList)
-            error = (pred.count(1) / float(pred.count(1) + pred.count(0))) * 100
-            #print error
-            ridx = 0
-            for row in range(numLinesTrain):
-                if row in rdmRowIdx:
-                    trainWtList[row] = wtList[ridx]
-                    ridx += 1
+            for linenumber, row in enumerate(rdmRowIdx):
+                trainWtList[row] = wtList[linenumber]
             trainWtList /= np.sum(trainWtList)
-        print "Classifier completed " + str(element)
+        # print "Classifier completed " + str(element)
     modelAppend.close()
 
 def adaboostTest(testFile, modelFile):
     test = open(testFile, "r")
-    output = open("output.txt", "r")
+    output = open("output.txt", "w+")
     model = open(modelFile, "r")
     accuracy = 0
     numLinesTest = sum(1 for line in open(testFile))

@@ -15,10 +15,8 @@ def knnTrain(trainFile, modelFile):
     trainData.close()
     modelAppend.close()
 
-def knnTest(testVector, trainOrient, trainVector, kValue):
+def knnTest(testVector, trainOrient, trainVector, kValue, knn, knnDist):
     distQueue = PriorityQueue()
-    knn = {0: 0, 90: 0, 180: 0, 270: 0}
-    knnDist = {0: 0, 90: 0, 180: 0, 270: 0}
     for row in range(0,len(trainOrient),1):
         vector = trainVector[row]
         orient = int(trainOrient[row])

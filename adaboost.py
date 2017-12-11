@@ -1,11 +1,14 @@
 #!/usr/bin/python
 
-import sys
+# Authors: Ayesha Bhimdiwala(aybhimdi), Umang Mehta(mehtau) & Vaishnavi Srinivasan(vsriniv)
+# Please find the Report and Design Decisions listed in Report.pdf alongside.
+
 import math
 import operator
-from Queue import PriorityQueue
-import numpy as np
 import random
+
+import numpy as np
+
 
 def buildDS(trainFile):
     global dsVector
@@ -19,6 +22,7 @@ def buildDS(trainFile):
         dsOrient[lineNumber] = int(rowList[1])
         dsVector[lineNumber] = np.array([int(i) for i in rowList[2].split(' ')])
     train.close()
+
 
 def buildTrain(orientation, trainWtList):
     global trainVector
@@ -39,8 +43,10 @@ def buildTrain(orientation, trainWtList):
         trainVector[linenumber] = [dsVector[row][col] for col in featUdrCns]
         wtList[linenumber] = trainWtList[row]
 
+
 def decisionStump(vectorList):
     return 1 if vectorList[0] > vectorList[1] else 0
+
 
 def adaboostTrain(trainFile, modelFile):
     modelAppend = open(modelFile, "w+")
@@ -66,6 +72,7 @@ def adaboostTrain(trainFile, modelFile):
             trainWtList /= np.sum(trainWtList)
         # print "Classifier completed " + str(element)
     modelAppend.close()
+
 
 def adaboostTest(testFile, modelFile):
     test = open(testFile, "r")

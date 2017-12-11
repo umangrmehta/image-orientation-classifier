@@ -1,10 +1,13 @@
 #!/usr/bin/python
 
+# Authors: Ayesha Bhimdiwala(aybhimdi), Umang Mehta(mehtau) & Vaishnavi Srinivasan(vsriniv)
+# Please find the Report and Design Decisions listed in Report.pdf alongside.
+
 import random
 import numpy as np
 
 opPositionVector = ['0', '90', '180', '270']
-hiddenNeurons = 20
+hiddenNeurons = 90
 alpha = 0.0001
 epoch = 1000
 
@@ -39,6 +42,7 @@ def train(trainFile, modelFile):
 			if vectorCheck[vectorIDX]:
 				continue
 			ipVector = trainIPVectors[vectorIDX]
+			
 			# Feed Forward
 			hidden = np.dot(ipVector, ipToHidden)
 			hiddenOP = sigmoid(hidden)
@@ -58,28 +62,24 @@ def train(trainFile, modelFile):
 			vectorCheck[vectorIDX] = True
 			epochError += np.sum(np.square(trainOPVectors[vectorIDX] - finalOP))*0.5
 
-		if i % 10 == 0:
-			print "Epoch = ", i
-			print "Epoch Error = ", epochError
-			np.savez_compressed(modelFile, ipToHidden=ipToHidden, hiddenToOP=hiddenToOP)
-			test("test-data.txt",  modelFile)
-			print "-------------------------------------------------------------------------------------------------"
-	print ipToHidden
-	print hiddenToOP
 	np.savez_compressed(modelFile, ipToHidden=ipToHidden, hiddenToOP=hiddenToOP)
+	print "Training Complete!!!"
 
 
 def test(testFile, modelFile):
 	modelData = np.load(modelFile)
 	ipToHidden = modelData['ipToHidden']
 	hiddenToOP = modelData['hiddenToOP']
+	outputFile = open("output.txt", "w")
 
 	numLinesTest = sum(1 for line in open(testFile))
 	testVectors = np.zeros((numLinesTest, 192), dtype=np.int_)
 	testOrients = np.zeros(numLinesTest, dtype=np.int_)
+	imageNames = []
 	lineNumber = 0
 	for line in open(testFile, "r"):
 		testList = line.split(' ')
+		imageNames.append(testList[0])
 		testList = [int(i) for i in testList[1:]]
 		testOrients[lineNumber] = testList[0]
 		testVectors[lineNumber] = np.array(testList[1:])
@@ -93,12 +93,10 @@ def test(testFile, modelFile):
 
 		op = np.dot(hiddenOP, hiddenToOP)
 		finalOP = sigmoid(op)
-		# print op, finalOP
 		predictedOrient = opPositionVector[np.argmax(finalOP)]
-		# print predictedOrient
-		# print testOrients[idx]
-		# print "-------------------------------------------------------------------------------------------------------"
+		outputFile.write("%s %s\n" % (str(imageNames[idx]), str(predictedOrient)))
 		if int(predictedOrient) == testOrients[idx]:
 			correctCount += 1
 	print "Correctness: ", correctCount
 	print "Accuracy: ", str(correctCount * 100.0 / numLinesTest)
+	outputFile.close()

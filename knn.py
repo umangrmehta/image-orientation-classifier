@@ -1,10 +1,13 @@
 #!/usr/bin/python
 
-import sys
+# Authors: Ayesha Bhimdiwala(aybhimdi), Umang Mehta(mehtau) & Vaishnavi Srinivasan(vsriniv)
+# Please find the Report and Design Decisions listed in Report.pdf alongside.
+
 import math
-import operator
 from Queue import PriorityQueue
+
 import numpy as np
+
 
 def knnTrain(trainFile, modelFile):
     trainData = open(trainFile, "r")
@@ -14,6 +17,7 @@ def knnTrain(trainFile, modelFile):
         modelAppend.write("%s|%s\n" % (row[1], row[2]))
     trainData.close()
     modelAppend.close()
+
 
 def knnTest(testVector, trainOrient, trainVector, kValue, knn, knnDist):
     distQueue = PriorityQueue()

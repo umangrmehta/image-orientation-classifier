@@ -42,7 +42,6 @@ def train(trainFile, modelFile):
 			if vectorCheck[vectorIDX]:
 				continue
 			ipVector = trainIPVectors[vectorIDX]
-			
 			# Feed Forward
 			hidden = np.dot(ipVector, ipToHidden)
 			hiddenOP = sigmoid(hidden)
@@ -62,8 +61,15 @@ def train(trainFile, modelFile):
 			vectorCheck[vectorIDX] = True
 			epochError += np.sum(np.square(trainOPVectors[vectorIDX] - finalOP))*0.5
 
+		if i % 10 == 0:
+			print "Epoch = ", i
+			print "Epoch Error = ", epochError
+			np.savez_compressed(modelFile, ipToHidden=ipToHidden, hiddenToOP=hiddenToOP)
+			test("test-data.txt",  modelFile)
+			print "-------------------------------------------------------------------------------------------------"
 	np.savez_compressed(modelFile, ipToHidden=ipToHidden, hiddenToOP=hiddenToOP)
 	print "Training Complete!!!"
+	test("test-data.txt", modelFile)
 
 
 def test(testFile, modelFile):

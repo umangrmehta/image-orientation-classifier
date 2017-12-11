@@ -1,13 +1,12 @@
 #!/usr/bin/python
 
-import sys
-import math
-import operator
-from Queue import PriorityQueue
-import numpy as np
+# Authors: Ayesha Bhimdiwala(aybhimdi), Umang Mehta(mehtau) & Vaishnavi Srinivasan(vsriniv)
+# Please find the Report and Design Decisions listed in Report.pdf alongside.
 
+import nnet
 from adaboost import *
 from knn import *
+
 
 def knnTestPreprocessor():
     lineNumber = 0
@@ -41,6 +40,7 @@ if model.lower() == "nearest":
     if switch.lower() == "train":
         knnTrain(switchFile, modelFile)
     if switch.lower() == "test":
+        output = open("output.txt", "w+")
         accuracy = 0
         numLinesTrain = sum(1 for line in open(modelFile))
         numLinesTest = sum(1 for line in open(switchFile))
@@ -55,11 +55,25 @@ if model.lower() == "nearest":
             knnDist = {0: 0, 90: 0, 180: 0, 270: 0}
             # print "-------------LINE " + str(row) + "-------------"
             predictOrient = knnTest(testVector[row], trainOrient, trainVector, 45, knn, knnDist)
-            print str(testFile[row]) + " " + str(predictOrient)
+            output.write("%s %s\n" % (str(testFile[row]), str(predictOrient)))
             accuracy += (1 if predictOrient == int(testOrient[row]) else 0)
         print "K-Nearest Neighbours Accuracy: " + str(100.0 * accuracy / row)
+        output.close()
+
 elif model.lower() == "adaboost":
     if switch.lower() == "train":
         adaboostTrain(switchFile, modelFile)
     if switch.lower() == "test":
         adaboostTest(switchFile, modelFile)
+
+elif model.lower() == "nnet":
+    if switch.lower() == "train":
+        nnet.train(switchFile, modelFile)
+    if switch.lower() == "test":
+        nnet.test(switchFile, modelFile)
+
+elif model.lower() == "best":
+    if switch.lower() == "train":
+        nnet.train(switchFile, modelFile)
+    if switch.lower() == "test":
+        nnet.test(switchFile, modelFile)

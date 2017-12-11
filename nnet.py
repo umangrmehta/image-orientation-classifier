@@ -36,7 +36,6 @@ def train(trainFile, modelFile):
 
 	for i in range(epoch):
 		vectorCheck = np.zeros(trainDataLength, dtype=np.bool_)
-		epochError = 0.0
 		while not np.all(vectorCheck):
 			vectorIDX = random.randint(0, trainDataLength - 1)
 			if vectorCheck[vectorIDX]:
@@ -60,7 +59,6 @@ def train(trainFile, modelFile):
 			ipToHidden = ipToHidden + alpha * np.dot(np.asmatrix(ipVector).transpose(), np.asmatrix(hiddenError))
 
 			vectorCheck[vectorIDX] = True
-			epochError += np.sum(np.square(trainOPVectors[vectorIDX] - finalOP))*0.5
 
 	np.savez_compressed(modelFile, ipToHidden=ipToHidden, hiddenToOP=hiddenToOP)
 	print "Training Complete!!!"

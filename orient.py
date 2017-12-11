@@ -55,7 +55,7 @@ if model.lower() == "nearest":
             knn = {0: 0, 90: 0, 180: 0, 270: 0}
             knnDist = {0: 0, 90: 0, 180: 0, 270: 0}
             # print "-------------LINE " + str(row) + "-------------"
-            predictOrient = knnTest(testVector[row], trainOrient, trainVector, 40, knn, knnDist)
+            predictOrient = knnTest(testVector[row], trainOrient, trainVector, 45, knn, knnDist)
             output.write("%s %s\n" % (str(testFile[row]), str(predictOrient)))
             accuracy += (1 if predictOrient == int(testOrient[row]) else 0)
         print "K-Nearest Neighbours Accuracy: " + str(100.0 * accuracy / row)

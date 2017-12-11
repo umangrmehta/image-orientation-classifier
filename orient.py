@@ -3,6 +3,8 @@
 # Authors: Ayesha Bhimdiwala(aybhimdi), Umang Mehta(mehtau) & Vaishnavi Srinivasan(vsriniv)
 # Please find the Report and Design Decisions listed in Report.pdf alongside.
 
+import sys
+
 import nnet
 from adaboost import *
 from knn import *
